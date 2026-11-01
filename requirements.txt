@@ -1,0 +1,35 @@
+# --- UI ---
+streamlit>=1.40
+
+# --- LLM orchestration (LCEL) ---
+langchain>=0.3
+langchain-core>=0.3
+langchain-community>=0.3
+langchain-text-splitters>=0.3
+langchain-groq>=0.2
+langchain-google-genai>=2.0
+
+# --- Vector DB + embeddings (chat with transcript) ---
+chromadb>=0.5
+langchain-chroma>=0.1
+langchain-huggingface>=0.1
+sentence-transformers>=3.0
+
+# --- Local transcription ---
+faster-whisper>=1.0      # or: openai-whisper
+torch>=2.2
+
+# --- Audio / video input ---
+yt-dlp>=2024.10.0
+pydub>=0.25
+ffmpeg-python>=0.2
+
+# --- Export ---
+python-docx>=1.1
+fpdf2>=2.8
+
+# --- Utils ---
+python-dotenv>=1.0
+pydantic>=2.0
+whisper>=1.1.10
+openai-whisper
