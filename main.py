@@ -9,23 +9,60 @@ from rich import print
 
 load_dotenv()
 
-def run_pipeline(source :str, language :str = "english") -> dict:
+def run_pipeline(source: str, language: str = "english", progress_callback=None) -> dict:
+    """
+    Runs the full pipeline.
+
+    progress_callback(stage, detail=None) is optional. The Streamlit UI passes it
+    to show live steps. Stage keys used by app.py:
+    download, transcribe, summary, actions, decisions, questions, index
+    """
+
+    def report(stage, detail=None):
+        if progress_callback:
+            try:
+                progress_callback(stage, detail)
+            except Exception:
+                # A UI problem must never break the actual analysis
+                pass
+
     print("starting AI Video Assistant")
 
+    # 1. Download / extract / split audio
+    report("download")
     chunks = process_input(source)
 
-    transcript = transcribe_all(chunks,language)
+    # 2. Speech -> text
+    engine = "Sarvam AI" if language == "hinglish" else "Whisper"
+    try:
+        total_chunks = len(chunks)
+        transcribe_detail = f"{engine} is transcribing {total_chunks} audio chunk(s)"
+    except TypeError:
+        transcribe_detail = f"{engine} is transcribing your audio"
+
+    report("transcribe", transcribe_detail)
+    transcript = transcribe_all(chunks, language)
     print(f"raw transcription (first 300 characters ) {transcript[:300]}")
 
+    # 3. Title + summary
+    report("summary")
     title = generate_title(transcript)
-
     summary = summarize(transcript)
 
+    # 4. Action items
+    report("actions")
     action_item = extract_action_items(transcript)
 
+    # 5. Key decisions
+    report("decisions")
     decisions = extract_key_decisions(transcript)
+
+    # 6. Open questions
+    report("questions")
     questions = extract_questions(transcript)
-    
+
+    # 7. Vector DB for chat
+    report("index")
     rag_chain = build_rag_chain(transcript)
 
     return {
